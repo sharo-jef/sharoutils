@@ -7,21 +7,21 @@ license="MIT"
 [[mods]] #mandatory
 
 # 8. MODID
-modId="<modid>" #mandatory
+modId="sharoutils" #mandatory
 version="${file.jarVersion}" #mandatory
 
 # 9. MODNAME (USER FRIENDLY)
-displayName="<modname>" #mandatory
+displayName="Sharo Utilities" #mandatory
 
 # 10. URL (OPTIONAL)
-displayURL="" #optional
+displayURL="https://github.com/sharo-jef/sharoutils" #optional
 
 # 11. USERNAME (OPTIONAL)
-authors="<username>" #optional
+authors="sharo_jef" #optional
 
 # 12. DESCRIPTION (OPTIONAL)
 description='''
-
+Sharo Utilities
 '''
 
 [[dependencies.examplemod]] #mandatory

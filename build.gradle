@@ -22,11 +22,11 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 // ! 1. VERSION
-version = '1.16.4-1.0.0' // format: minecraftVersion-modVersion
+version = '1.16.4-1.0.3' // format: minecraftVersion-modVersion
 // ! 2. PACKAGE
-group = 'org.<username>.<modid>' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'org.sharo.sharoutils' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 // ! 3. MODID
-archivesBaseName = '<modid>'
+archivesBaseName = 'sharoutils'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -96,14 +96,14 @@ jar {
     manifest {
         attributes([
             // ! 4. MODID
-            "Specification-Title": "<modid>",
+            "Specification-Title": "sharoutils",
             // ! 5. USERNAME
-            "Specification-Vendor": "<username>",
+            "Specification-Vendor": "sharo_jef",
             "Specification-Version": "1",
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             // ! 6. USERNAME
-            "Implementation-Vendor" :"<username>",
+            "Implementation-Vendor" :"sharo_jef",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
