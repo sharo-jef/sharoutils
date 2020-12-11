@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "snowy=false": { "model": "sharoutils:block/sharo_earth" },
+        "snowy=true":  { "model": "sharoutils:block/sharo_earth" }
+    }
+}

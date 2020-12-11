@@ -1,5 +1,7 @@
 {
     "item.sharoutils.sharo_ingot": "Sharo Ingot",
     "item.sharoutils.sharo_ring": "Sharo Ring",
-    "item.sharoutils.sharo_manju": "Sharo Manju"
+    "item.sharoutils.sharo_manju": "Sharo Manju",
+    "item.sharoutils.sharo_earth": "Sharo Earth",
+    "block.sharoutils.sharo_earth": "Sharo Earth"
 }

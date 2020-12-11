@@ -18,7 +18,9 @@ class SharoRing : Item {
         fun tick(event: TickEvent.PlayerTickEvent) {
             val player = event.player
             if (player.isCreative || player.isSpectator) {
-                player.abilities.allowFlying = true
+                if (!player.abilities.allowFlying) {
+                    player.abilities.allowFlying = true
+                }
             } else {
                 if (player.inventory.hasItemStack(ItemStack(SHARO_RING))) {
                     if (!player.abilities.allowFlying) {

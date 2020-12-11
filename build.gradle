@@ -22,7 +22,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 // ! 1. VERSION
-version = '1.16.4-1.0.3' // format: minecraftVersion-modVersion
+version = '1.16.4-1.0.4' // format: minecraftVersion-modVersion
 // ! 2. PACKAGE
 group = 'org.sharo.sharoutils' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 // ! 3. MODID
