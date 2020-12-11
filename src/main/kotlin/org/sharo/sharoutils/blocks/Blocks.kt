@@ -15,6 +15,8 @@ class Blocks {
     companion object {
         @JvmStatic
         val SHARO_EARTH: Block = SharoEarth()
+        @JvmStatic
+        val ELEVATOR: Block = Elevator()
 
         @JvmStatic
         @SubscribeEvent
@@ -29,12 +31,23 @@ class Blocks {
                 )
                     .setRegistryName("sharo_earth")
             )
+            event.registry.register(
+                BlockItem(
+                    ELEVATOR,
+                    Item.Properties()
+                        .group(ItemGroup.TRANSPORTATION)
+                        .maxStackSize(64)
+                        .rarity(Rarity.COMMON)
+                )
+                    .setRegistryName("elevator")
+            )
         }
 
         @JvmStatic
         @SubscribeEvent
         fun registerBlock(event: RegistryEvent.Register<Block>) {
             event.registry.register(SHARO_EARTH)
+            event.registry.register(ELEVATOR)
         }
     }
 }

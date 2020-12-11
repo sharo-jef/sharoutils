@@ -3,5 +3,7 @@
     "item.sharoutils.sharo_ring": "Sharoリング",
     "item.sharoutils.sharo_manju": "Sharo饅頭",
     "item.sharoutils.sharo_earth": "Sharo土",
-    "block.sharoutils.sharo_earth": "Sharo土"
+    "block.sharoutils.sharo_earth": "Sharo土",
+    "item.sharoutils.elevator": "エレベータ",
+    "block.sharoutils.elevator": "エレベータ"
 }

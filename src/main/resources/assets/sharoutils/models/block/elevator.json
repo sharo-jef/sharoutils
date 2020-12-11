@@ -1,10 +1,9 @@
 {
     "parent": "block/block",
     "textures": {
-        "particle": "block/dirt",
-        "bottom": "sharoutils:block/sharo_earth_bottom",
-        "top": "sharoutils:block/sharo_earth_top",
-        "side": "sharoutils:block/sharo_earth_side"
+        "bottom": "sharoutils:block/elevator_bottom",
+        "top": "sharoutils:block/elevator_top",
+        "side": "sharoutils:block/elevator_side"
     },
     "elements": [
         {   "from": [ 0, 0, 0 ],
