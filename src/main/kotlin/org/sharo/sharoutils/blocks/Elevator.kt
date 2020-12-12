@@ -21,7 +21,7 @@ import java.util.*
 class Elevator : Block {
     companion object {
         @JvmStatic
-        var prevPlayers: MutableMap<World, MutableMap<UUID, Boolean>> = mutableMapOf<World, MutableMap<UUID, Boolean>>()
+        val prevPlayers: MutableMap<World, MutableMap<UUID, Boolean>> = mutableMapOf<World, MutableMap<UUID, Boolean>>()
 
         @JvmStatic
         @SubscribeEvent
