@@ -1,7 +1,5 @@
 package org.sharo.sharoutils
 
-import net.minecraft.block.Block
-import net.minecraft.item.Item
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
@@ -21,12 +19,11 @@ class SharoUtilities {
         val logger: Logger = LogManager.getLogger()
     }
 
-    constructor() {
-        FMLJavaModLoadingContext.get().modEventBus.addListener<FMLCommonSetupEvent> { this.setup(it) }
-        FMLJavaModLoadingContext.get().modEventBus.addListener<FMLClientSetupEvent> { this.setupClient(it) }
-        FMLJavaModLoadingContext.get().modEventBus.addListener<InterModEnqueueEvent> { this.enqueueIMC(it) }
-        FMLJavaModLoadingContext.get().modEventBus.addListener<InterModProcessEvent> { this.processIMC(it) }
-
+    init {
+        FMLJavaModLoadingContext.get().modEventBus.addListener<FMLCommonSetupEvent> { setup(it) }
+        FMLJavaModLoadingContext.get().modEventBus.addListener<FMLClientSetupEvent> { setupClient(it) }
+        FMLJavaModLoadingContext.get().modEventBus.addListener<InterModEnqueueEvent> { enqueueIMC(it) }
+        FMLJavaModLoadingContext.get().modEventBus.addListener<InterModProcessEvent> { processIMC(it) }
         MinecraftForge.EVENT_BUS.register(this)
     }
 

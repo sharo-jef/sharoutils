@@ -14,16 +14,16 @@ import org.sharo.sharoutils.SharoUtilities
 import java.util.*
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
-class SharoEarth : GrassBlock {
-    constructor() : super(
-        Properties
-            .create(Material.ROCK)
-            .hardnessAndResistance(3f, 10f)
-            .harvestLevel(1)
-            .harvestTool(ToolType.SHOVEL)
-            .sound(SoundType.WET_GRASS)
-            .tickRandomly()
-    ) {
+class SharoEarth : GrassBlock(
+    Properties
+        .create(Material.ROCK)
+        .hardnessAndResistance(3f, 10f)
+        .harvestLevel(1)
+        .harvestTool(ToolType.SHOVEL)
+        .sound(SoundType.WET_GRASS)
+        .tickRandomly()
+) {
+    init {
         setRegistryName("sharo_earth")
     }
 

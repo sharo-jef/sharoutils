@@ -5,7 +5,6 @@ import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import org.sharo.sharoutils.SharoUtilities
-import java.util.*
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 class Items {

@@ -7,11 +7,32 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         // ? kotlin
-        classpath 'org.jetbrains.kotlin:kotlin-stdlib:1.0.5-2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.5-2'
+        classpath 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'
+        classpath 'org.jetbrains.kotlin:kotlin-reflect:1.4.21'
         classpath 'org.jetbrains:annotations:13.0'
     }
 }
+
+// ? kotlin
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+    id 'org.jetbrains.kotlin.kapt' version '1.4.21'
+}
+
+// ? kotlin
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs += [
+                '-Xno-call-assertions',
+                '-Xno-receiver-assertions',
+                '-Xno-param-assertions',
+                '-include-runtime'
+        ]
+    }
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 
 // ? kotlin
@@ -22,7 +43,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 // ! 1. VERSION
-version = '1.16.4-1.0.5' // format: minecraftVersion-modVersion
+version = '1.16.4-1.0.6' // format: minecraftVersion-modVersion
 // ! 2. PACKAGE
 group = 'org.sharo.sharoutils' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 // ! 3. MODID
@@ -85,11 +106,12 @@ configurations {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.7'
+    minecraft 'net.minecraftforge:forge:1.16.4-35.1.12'
     // ? kotlin
-    embed 'org.jetbrains.kotlin:kotlin-stdlib:1.0.5-2'
-    compile 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.5-2'
-    embed 'org.jetbrains:annotations:13.0'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21'
+    compile 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'
+    embed 'org.jetbrains.kotlin:kotlin-reflect:1.4.21'
+    compile 'org.jetbrains:annotations:13.0'
 }
 
 jar {

@@ -8,7 +8,7 @@ import org.sharo.sharoutils.data.client.ModBlockStateProvider
 import org.sharo.sharoutils.data.client.ModItemModelProvider
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-class DataGenerator {
+class DataGenerator private constructor() {
     companion object {
         @JvmStatic
         @SubscribeEvent
@@ -17,6 +17,4 @@ class DataGenerator {
             event.generator.addProvider(ModBlockStateProvider(event.generator, event.existingFileHelper))
         }
     }
-
-    private constructor() {}
 }

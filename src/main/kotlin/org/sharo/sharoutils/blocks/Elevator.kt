@@ -5,7 +5,6 @@ import net.minecraft.block.SoundType
 import net.minecraft.block.material.Material
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -18,10 +17,17 @@ import org.sharo.sharoutils.SharoUtilities
 import java.util.*
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
-class Elevator : Block {
+class Elevator : Block(
+    Properties
+        .create(Material.IRON)
+        .hardnessAndResistance(3f, 10f)
+        .harvestLevel(0)
+        .harvestTool(ToolType.PICKAXE)
+        .sound(SoundType.GROUND)
+) {
     companion object {
         @JvmStatic
-        val prevPlayers: MutableMap<World, MutableMap<UUID, Boolean>> = mutableMapOf<World, MutableMap<UUID, Boolean>>()
+        val prevPlayers: MutableMap<World, MutableMap<UUID, Boolean>> = mutableMapOf()
 
         @JvmStatic
         @SubscribeEvent
@@ -31,10 +37,10 @@ class Elevator : Block {
                 prevSneak != event.player.isSneaking
                 && event.player.isSneaking
             ) {
-                sneak(event.player)
+                onSneak(event.player)
             }
             if (prevPlayers[event.player.world] == null) {
-                prevPlayers[event.player.world] = mutableMapOf<UUID, Boolean>()
+                prevPlayers[event.player.world] = mutableMapOf()
             }
             prevPlayers[event.player.world]
                 ?.set(
@@ -48,12 +54,12 @@ class Elevator : Block {
         fun jumpHandler(event: LivingEvent.LivingJumpEvent) {
             val entity = event.entity
             if (entity is PlayerEntity) {
-                jump(entity)
+                onJump(entity)
             }
         }
 
         @JvmStatic
-        fun sneak(player: PlayerEntity) {
+        fun onSneak(player: PlayerEntity) {
             if (isOnElevator(player)) {
                 val y = getAnotherFloor(player.world, player.position, -1)
                 if (y != -1) {
@@ -65,7 +71,7 @@ class Elevator : Block {
         }
 
         @JvmStatic
-        fun jump(player: PlayerEntity) {
+        fun onJump(player: PlayerEntity) {
             if (isOnElevator(player)) {
                 val y = getAnotherFloor(player.world, player.position, 1)
                 if (y != -1) {
@@ -119,14 +125,8 @@ class Elevator : Block {
             return anotherFloor
         }
     }
-    constructor() : super(
-        Properties
-            .create(Material.IRON)
-            .hardnessAndResistance(3f, 10f)
-            .harvestLevel(0)
-            .harvestTool(ToolType.PICKAXE)
-            .sound(SoundType.GROUND)
-    ) {
+
+    init {
         setRegistryName("elevator")
     }
 }

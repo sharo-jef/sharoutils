@@ -7,13 +7,13 @@ import net.minecraftforge.fml.common.Mod
 import org.sharo.sharoutils.SharoUtilities
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
-class SharoIngot : Item {
-    constructor() : super(
-        Properties()
-            .group(ItemGroup.MATERIALS)
-            .maxStackSize(64)
-            .rarity(Rarity.COMMON)
-    ) {
+class SharoIngot : Item(
+    Properties()
+        .group(ItemGroup.MATERIALS)
+        .maxStackSize(64)
+        .rarity(Rarity.COMMON)
+) {
+    init {
         setRegistryName("sharo_ingot")
     }
 }

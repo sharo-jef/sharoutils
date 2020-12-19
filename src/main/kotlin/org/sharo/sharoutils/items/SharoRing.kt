@@ -11,7 +11,12 @@ import org.sharo.sharoutils.SharoUtilities
 import org.sharo.sharoutils.items.Items.Companion.SHARO_RING
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
-class SharoRing : Item {
+class SharoRing : Item(
+    Properties()
+        .group(ItemGroup.MATERIALS)
+        .maxStackSize(1)
+        .rarity(Rarity.EPIC)
+) {
     companion object {
         @JvmStatic
         @SubscribeEvent
@@ -36,12 +41,7 @@ class SharoRing : Item {
         }
     }
 
-    constructor() : super(
-        Properties()
-            .group(ItemGroup.MATERIALS)
-            .maxStackSize(1)
-            .rarity(Rarity.EPIC)
-    ) {
+    init {
         setRegistryName("sharo_ring")
     }
 }

@@ -10,20 +10,20 @@ import net.minecraftforge.fml.common.Mod
 import org.sharo.sharoutils.SharoUtilities
 
 @Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
-class SharoManju : Item {
-    constructor() : super(
-        Properties()
-            .group(ItemGroup.FOOD)
-            .maxStackSize(64)
-            .food(
-                Food.Builder()
-                    .hunger(20)
-                    .saturation(20f)
-                    .effect({ EffectInstance(Effects.JUMP_BOOST, 60 * 20, 3) }, 1f)
-                    .build()
-            )
-            .rarity(Rarity.COMMON)
-    ) {
+class SharoManju : Item(
+    Properties()
+        .group(ItemGroup.FOOD)
+        .maxStackSize(64)
+        .food(
+            Food.Builder()
+                .hunger(20)
+                .saturation(20f)
+                .effect({ EffectInstance(Effects.JUMP_BOOST, 60 * 20, 3) }, 1f)
+                .build()
+        )
+        .rarity(Rarity.COMMON)
+) {
+    init {
         setRegistryName("sharo_manju")
     }
 }

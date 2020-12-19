@@ -6,8 +6,9 @@
         "side": "sharoutils:block/elevator_side"
     },
     "elements": [
-        {   "from": [ 0, 0, 0 ],
-            "to": [ 16, 16, 16 ],
+        {
+            "from": [0, 0, 0],
+            "to": [16, 16, 16],
             "faces": {
                 "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#bottom", "cullface": "down" },
                 "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#top",    "cullface": "up", "tintindex": 0 },
