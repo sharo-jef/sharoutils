@@ -3,7 +3,11 @@
     "item.sharoutils.sharo_ring": "Sharo Ring",
     "item.sharoutils.sharo_manju": "Sharo Manju",
     "item.sharoutils.sharo_earth": "Sharo Earth",
-    "block.sharoutils.sharo_earth": "Sharo Earth",
     "item.sharoutils.elevator": "Elevator",
-    "block.sharoutils.elevator": "Elevator"
+    "item.sharoutils.sharo_nugget": "Sharo Nugget",
+
+    "block.sharoutils.sharo_earth": "Sharo Earth",
+    "block.sharoutils.elevator": "Elevator",
+
+    "entity.sharoutils.sharo": "Sharo"
 }

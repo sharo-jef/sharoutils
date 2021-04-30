@@ -1,18 +1,17 @@
-package org.sharo.sharoutils.items
+package org.sharo.sharoutils.item
 
 import net.minecraft.item.Food
 import net.minecraft.item.Item
-import net.minecraft.item.ItemGroup
 import net.minecraft.item.Rarity
 import net.minecraft.potion.EffectInstance
 import net.minecraft.potion.Effects
 import net.minecraftforge.fml.common.Mod
-import org.sharo.sharoutils.SharoUtilities
+import org.sharo.sharoutils.Core
 
-@Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
+@Mod.EventBusSubscriber(modid = Core.MODID)
 class SharoManju : Item(
     Properties()
-        .group(ItemGroup.FOOD)
+        .group(Core.ITEM_GROUP)
         .maxStackSize(64)
         .food(
             Food.Builder()
@@ -22,8 +21,4 @@ class SharoManju : Item(
                 .build()
         )
         .rarity(Rarity.COMMON)
-) {
-    init {
-        setRegistryName("sharo_manju")
-    }
-}
+)

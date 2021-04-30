@@ -1,19 +1,18 @@
-package org.sharo.sharoutils.items
+package org.sharo.sharoutils.item
 
 import net.minecraft.item.Item
-import net.minecraft.item.ItemGroup
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Rarity
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
-import org.sharo.sharoutils.SharoUtilities
-import org.sharo.sharoutils.items.Items.Companion.SHARO_RING
+import org.sharo.sharoutils.Core
+import org.sharo.sharoutils.item.Items.Companion.SHARO_RING
 
-@Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
+@Mod.EventBusSubscriber(modid = Core.MODID)
 class SharoRing : Item(
     Properties()
-        .group(ItemGroup.MATERIALS)
+        .group(Core.ITEM_GROUP)
         .maxStackSize(1)
         .rarity(Rarity.EPIC)
 ) {
@@ -27,7 +26,7 @@ class SharoRing : Item(
                     player.abilities.allowFlying = true
                 }
             } else {
-                if (player.inventory.hasItemStack(ItemStack(SHARO_RING))) {
+                if (player.inventory.hasItemStack(ItemStack(SHARO_RING.get()))) {
                     if (!player.abilities.allowFlying) {
                         player.abilities.allowFlying = true
                     }
@@ -39,9 +38,5 @@ class SharoRing : Item(
                 }
             }
         }
-    }
-
-    init {
-        setRegistryName("sharo_ring")
     }
 }

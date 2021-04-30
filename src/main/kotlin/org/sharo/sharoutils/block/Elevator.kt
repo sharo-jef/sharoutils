@@ -1,4 +1,4 @@
-package org.sharo.sharoutils.blocks
+package org.sharo.sharoutils.block
 
 import net.minecraft.block.Block
 import net.minecraft.block.SoundType
@@ -13,10 +13,10 @@ import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
-import org.sharo.sharoutils.SharoUtilities
+import org.sharo.sharoutils.Core
 import java.util.*
 
-@Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
+@Mod.EventBusSubscriber(modid = Core.MODID)
 class Elevator : Block(
     Properties
         .create(Material.IRON)
@@ -124,9 +124,5 @@ class Elevator : Block(
             }
             return anotherFloor
         }
-    }
-
-    init {
-        setRegistryName("elevator")
     }
 }

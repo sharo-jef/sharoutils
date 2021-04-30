@@ -1,4 +1,4 @@
-package org.sharo.sharoutils.blocks
+package org.sharo.sharoutils.block
 
 import net.minecraft.block.BlockState
 import net.minecraft.block.GrassBlock
@@ -10,10 +10,10 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.ToolType
 import net.minecraftforge.fml.common.Mod
-import org.sharo.sharoutils.SharoUtilities
+import org.sharo.sharoutils.Core
 import java.util.*
 
-@Mod.EventBusSubscriber(modid = SharoUtilities.MODID)
+@Mod.EventBusSubscriber(modid = Core.MODID)
 class SharoEarth : GrassBlock(
     Properties
         .create(Material.ROCK)
@@ -23,10 +23,6 @@ class SharoEarth : GrassBlock(
         .sound(SoundType.WET_GRASS)
         .tickRandomly()
 ) {
-    init {
-        setRegistryName("sharo_earth")
-    }
-
     override fun randomTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
         super.randomTick(state, worldIn, pos, random)
         val entityTypes = arrayOf(
