@@ -13,31 +13,5 @@ import org.sharo.sharoutils.config.Config
 import org.sharo.sharoutils.entity.EntityTypes
 
 @Mod.EventBusSubscriber(modid = Core.MODID)
-class ForgeClientEventBusSubscriber {
-    companion object {
-        @JvmStatic
-        @SubscribeEvent(priority = EventPriority.HIGH)
-        fun onBiomeLoadingEvent(event: BiomeLoadingEvent) {
-            if (
-                event.category in arrayOf(
-                    Biome.Category.BEACH,
-                    Biome.Category.DESERT,
-                    Biome.Category.EXTREME_HILLS,
-                    Biome.Category.FOREST,
-                    Biome.Category.ICY,
-                    Biome.Category.MESA,
-                    Biome.Category.MUSHROOM,
-                    Biome.Category.PLAINS,
-                    Biome.Category.OCEAN,
-                    Biome.Category.RIVER,
-                    Biome.Category.SAVANNA,
-                    Biome.Category.SWAMP,
-                    Biome.Category.TAIGA
-                )
-            ) {
-                val spawns = event.spawns.getSpawner(EntityClassification.MONSTER)
-                spawns.add(MobSpawnInfo.Spawners(EntityTypes.SHARO.get(), Config.sharoSpawnWeight, 1, 4))
-            }
-        }
-    }
+class ForgeCommonEventBusSubscriber {
 }

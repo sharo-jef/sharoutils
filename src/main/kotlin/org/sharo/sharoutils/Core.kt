@@ -1,7 +1,10 @@
 package org.sharo.sharoutils
 
+import net.minecraft.entity.EntitySpawnPlacementRegistry
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes
+import net.minecraft.entity.monster.MonsterEntity
+import net.minecraft.world.gen.Heightmap
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent
@@ -74,6 +77,13 @@ class Core {
 
     private fun setup(event: FMLCommonSetupEvent) {
         logger.info("setup")
+//        EntitySpawnPlacementRegistry.register(
+//            EntityTypes.SHARO.get(),
+//            EntitySpawnPlacementRegistry.PlacementType.ON_GROUND,
+//            Heightmap.Type.WORLD_SURFACE,
+//            // ↓ わがんね
+//            null,
+//        )
 
         DeferredWorkQueue.runLater {
             GlobalEntityTypeAttributes.put(

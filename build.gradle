@@ -43,7 +43,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 // ! 1. VERSION
-version = '1.16.4-1.0.7' // format: minecraftVersion-modVersion
+version = '1.16.5-1.0.8' // format: minecraftVersion-modVersion
 // ! 2. PACKAGE
 group = 'org.sharo.sharoutils' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 // ! 3. MODID
@@ -106,7 +106,7 @@ configurations {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.12'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
     // ? kotlin
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21'
     compile 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21'

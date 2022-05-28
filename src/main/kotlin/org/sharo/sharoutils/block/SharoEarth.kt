@@ -11,6 +11,7 @@ import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.ToolType
 import net.minecraftforge.fml.common.Mod
 import org.sharo.sharoutils.Core
+import org.sharo.sharoutils.entity.EntityTypes
 import java.util.*
 
 @Mod.EventBusSubscriber(modid = Core.MODID)
@@ -30,7 +31,8 @@ class SharoEarth : GrassBlock(
             EntityType.ZOMBIE,
             EntityType.SPIDER,
             EntityType.CREEPER,
-            EntityType.ENDERMAN
+            EntityType.ENDERMAN,
+            EntityTypes.SHARO.get(),
         )
         val rand = Random(System.currentTimeMillis())
         val entityType = entityTypes[rand.nextInt(entityTypes.size)]
