@@ -2,62 +2,115 @@ package org.sharo.sharoutils.item
 
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.Rarity
-import net.minecraftforge.event.RegistryEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.RegistryObject
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.registries.DeferredRegister
-import net.minecraftforge.registries.ForgeRegistries
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
+import net.minecraft.util.Identifier
+import net.minecraft.util.Rarity
 import org.sharo.sharoutils.Core
 import org.sharo.sharoutils.block.Blocks
-import org.sharo.sharoutils.entity.EntityTypes
-import org.sharo.sharoutils.tab.SharoUtilitiesItemGroup
 
-@Mod.EventBusSubscriber(modid = Core.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 class Items {
-    companion object {
-        @JvmStatic
-        val register: DeferredRegister<Item> = DeferredRegister.create(ForgeRegistries.ITEMS, Core.MODID)
+        companion object {
+                @JvmStatic lateinit var SHARO_INGOT: Item
 
-        @JvmStatic
-        val SHARO_INGOT: RegistryObject<SharoIngot> = register.register("sharo_ingot", ::SharoIngot)
-        @JvmStatic
-        val SHARO_RING: RegistryObject<SharoRing> = register.register("sharo_ring", ::SharoRing)
-        @JvmStatic
-        val SHARO_MANJU: RegistryObject<SharoManju> = register.register("sharo_manju", ::SharoManju)
-        @JvmStatic
-        val SHARO_NUGGET: RegistryObject<SharoNugget> = register.register("sharo_nugget", ::SharoNugget)
-//        @JvmStatic
-//        val SHARO_SPAWN_EGG: RegistryObject<SharoSpawnEgg> = register.register("sharo_spawn_egg") {
-//            SharoSpawnEgg(
-//                EntityTypes.SHARO,
-//                0xa2d085,
-//                0x646461,
-//                Item.Properties().group(Core.ITEM_GROUP)
-//            )
-//        }
+                @JvmStatic lateinit var SHARO_RING: Item
 
-        @JvmStatic
-        val SHARO_EARTH: RegistryObject<BlockItem> = register.register("sharo_earth") {
-            BlockItem(
-                Blocks.SHARO_EARTH.get(),
-                Item.Properties()
-                    .group(Core.ITEM_GROUP)
-                    .maxStackSize(64)
-                    .rarity(Rarity.RARE)
-            )
+                @JvmStatic lateinit var SHARO_MANJU: Item
+
+                @JvmStatic lateinit var SHARO_NUGGET: Item
+
+                @JvmStatic lateinit var SHARO_EARTH: BlockItem
+
+                @JvmStatic lateinit var ELEVATOR: BlockItem
+
+                @JvmStatic lateinit var SHARO_SPAWN_EGG: Item
+
+                @JvmStatic
+                fun register() {
+                        SHARO_INGOT =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "sharo_ingot"),
+                                        SharoIngot()
+                                )
+
+                        SHARO_RING =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "sharo_ring"),
+                                        SharoRing()
+                                )
+
+                        SHARO_MANJU =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "sharo_manju"),
+                                        SharoManju()
+                                )
+
+                        SHARO_NUGGET =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "sharo_nugget"),
+                                        SharoNugget()
+                                )
+
+                        SHARO_EARTH =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "sharo_earth"),
+                                        BlockItem(
+                                                Blocks.SHARO_EARTH,
+                                                Item.Settings()
+                                                        .maxCount(64)
+                                                        .rarity(Rarity.RARE)
+                                                        .registryKey(
+                                                                net.minecraft.registry.RegistryKey
+                                                                        .of(
+                                                                                net.minecraft
+                                                                                        .registry
+                                                                                        .RegistryKeys
+                                                                                        .ITEM,
+                                                                                Identifier.of(
+                                                                                        Core.MODID,
+                                                                                        "sharo_earth"
+                                                                                )
+                                                                        )
+                                                        )
+                                        )
+                                )
+
+                        ELEVATOR =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "elevator"),
+                                        BlockItem(
+                                                Blocks.ELEVATOR,
+                                                Item.Settings()
+                                                        .maxCount(64)
+                                                        .rarity(Rarity.COMMON)
+                                                        .registryKey(
+                                                                net.minecraft.registry.RegistryKey
+                                                                        .of(
+                                                                                net.minecraft
+                                                                                        .registry
+                                                                                        .RegistryKeys
+                                                                                        .ITEM,
+                                                                                Identifier.of(
+                                                                                        Core.MODID,
+                                                                                        "elevator"
+                                                                                )
+                                                                        )
+                                                        )
+                                        )
+                                )
+
+                        SHARO_SPAWN_EGG =
+                                Registry.register(
+                                        Registries.ITEM,
+                                        Identifier.of(Core.MODID, "sharo_spawn_egg"),
+                                        SharoSpawnEgg()
+                                )
+                }
         }
-        @JvmStatic
-        val ELEVATOR: RegistryObject<BlockItem> = register.register("elevator") {
-            BlockItem(
-                Blocks.ELEVATOR.get(),
-                Item.Properties()
-                    .group(Core.ITEM_GROUP)
-                    .maxStackSize(64)
-                    .rarity(Rarity.COMMON)
-            )
-        }
-    }
 }

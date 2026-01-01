@@ -5,9 +5,12 @@
     "item.sharoutils.sharo_earth": "Sharo土",
     "item.sharoutils.elevator": "エレベータ",
     "item.sharoutils.sharo_nugget": "Sharo塊",
+    "item.sharoutils.sharo_spawn_egg": "Sharoのスポーンエッグ",
 
     "block.sharoutils.sharo_earth": "Sharo土",
     "block.sharoutils.elevator": "エレベータ",
 
-    "entity.sharoutils.sharo": "Sharo"
+    "entity.sharoutils.sharo": "Sharo",
+
+    "itemGroup.sharoutils": "Sharo Utilities"
 }

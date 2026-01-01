@@ -1,107 +1,59 @@
 package org.sharo.sharoutils
 
-import net.minecraft.entity.EntitySpawnPlacementRegistry
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes
-import net.minecraft.entity.monster.MonsterEntity
-import net.minecraft.world.gen.Heightmap
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.event.RegistryEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.DeferredWorkQueue
-import net.minecraftforge.fml.ModLoadingContext
-import net.minecraftforge.fml.client.registry.RenderingRegistry
-import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.config.ModConfig
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup
+import net.minecraft.item.ItemGroup
+import net.minecraft.item.ItemStack
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
+import net.minecraft.text.Text
+import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.sharo.sharoutils.block.Blocks
-import org.sharo.sharoutils.client.render.SharoRenderer
-import org.sharo.sharoutils.config.Config
 import org.sharo.sharoutils.entity.EntityTypes
-import org.sharo.sharoutils.entity.SharoEntity
 import org.sharo.sharoutils.item.Items
-import org.sharo.sharoutils.item.SharoSpawnEgg
-import org.sharo.sharoutils.tab.SharoUtilitiesItemGroup
 
-@Suppress("UNUSED_PARAMETER")
-@Mod(Core.MODID)
-@Mod.EventBusSubscriber(modid = Core.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
-class Core {
+class Core : ModInitializer {
     companion object {
         const val MODID = "sharoutils"
-        @JvmStatic
-        val logger: Logger = LogManager.getLogger()
 
-        @JvmStatic
-        val ITEM_GROUP: SharoUtilitiesItemGroup = SharoUtilitiesItemGroup()
+        @JvmStatic val logger: Logger = LogManager.getLogger()
 
-        @JvmStatic
-        @SubscribeEvent
-        fun onRegisterEntities(event: RegistryEvent.Register<EntityType<*>>) {
-            SharoSpawnEgg.initSpawnEggs()
-        }
-
-        @JvmStatic
-        @SubscribeEvent
-        fun onClientSetup(event: FMLClientSetupEvent) {
-            RenderingRegistry.registerEntityRenderingHandler(
-                EntityTypes.SHARO.get(),
-                ::SharoRenderer
-            )
-        }
+        @JvmStatic lateinit var ITEM_GROUP: ItemGroup
     }
 
-    init {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC)
+    override fun onInitialize() {
+        logger.info("Initializing Sharo Utilities for Fabric")
 
-        EntityTypes.SHARO
+        // Initialize registries first
+        Blocks.register()
+        Items.register()
+        EntityTypes.register()
 
-        val bus = FMLJavaModLoadingContext.get().modEventBus
+        // Register Item Group with items
+        ITEM_GROUP =
+                FabricItemGroup.builder()
+                        .icon { ItemStack(Items.SHARO_INGOT) }
+                        .displayName(Text.translatable("itemGroup.sharoutils"))
+                        .entries { _, entries ->
+                            entries.add(Items.SHARO_INGOT)
+                            entries.add(Items.SHARO_RING)
+                            entries.add(Items.SHARO_MANJU)
+                            entries.add(Items.SHARO_NUGGET)
+                            entries.add(Items.SHARO_EARTH)
+                            entries.add(Items.ELEVATOR)
+                            // Temporarily disabled to prevent crashes
+                            // entries.add(Items.SHARO_SPAWN_EGG)
+                        }
+                        .build()
 
-        Blocks.register.register(bus)
-        EntityTypes.register.register(bus)
-        Items.register.register(bus)
+        Registry.register(Registries.ITEM_GROUP, Identifier.of(MODID, "sharoutils"), ITEM_GROUP)
 
-        bus.addListener<FMLCommonSetupEvent> { setup(it) }
-        bus.addListener<FMLClientSetupEvent> { setupClient(it) }
-        bus.addListener<InterModEnqueueEvent> { enqueueIMC(it) }
-        bus.addListener<InterModProcessEvent> { processIMC(it) }
-    }
+        // Register events
+        org.sharo.sharoutils.item.SharoRing.registerEvents()
+        org.sharo.sharoutils.common.ElevatorEventHandler.register()
 
-    private fun setup(event: FMLCommonSetupEvent) {
-        logger.info("setup")
-//        EntitySpawnPlacementRegistry.register(
-//            EntityTypes.SHARO.get(),
-//            EntitySpawnPlacementRegistry.PlacementType.ON_GROUND,
-//            Heightmap.Type.WORLD_SURFACE,
-//            // ↓ わがんね
-//            null,
-//        )
-
-        DeferredWorkQueue.runLater {
-            GlobalEntityTypeAttributes.put(
-                EntityTypes.SHARO.get(),
-                SharoEntity.setCustomAttributes().create()
-            )
-        }
-    }
-
-    private fun setupClient(event: FMLClientSetupEvent) {
-        logger.info("setup client")
-    }
-
-    private fun enqueueIMC(event: InterModEnqueueEvent) {
-        logger.info("enqueue imc")
-    }
-
-    private fun processIMC(event: InterModProcessEvent) {
-        logger.info("process imc")
+        logger.info("Sharo Utilities initialized")
     }
 }

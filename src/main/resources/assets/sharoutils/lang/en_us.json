@@ -5,9 +5,12 @@
     "item.sharoutils.sharo_earth": "Sharo Earth",
     "item.sharoutils.elevator": "Elevator",
     "item.sharoutils.sharo_nugget": "Sharo Nugget",
+    "item.sharoutils.sharo_spawn_egg": "Sharo Spawn Egg",
 
     "block.sharoutils.sharo_earth": "Sharo Earth",
     "block.sharoutils.elevator": "Elevator",
 
-    "entity.sharoutils.sharo": "Sharo"
+    "entity.sharoutils.sharo": "Sharo",
+
+    "itemGroup.sharoutils": "Sharo Utilities"
 }

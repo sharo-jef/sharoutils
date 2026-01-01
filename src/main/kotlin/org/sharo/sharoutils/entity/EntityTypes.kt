@@ -1,22 +1,36 @@
 package org.sharo.sharoutils.entity
 
-import net.minecraft.entity.EntityClassification
+import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.minecraft.entity.EntityType
-import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.RegistryObject
-import net.minecraftforge.registries.DeferredRegister
-import net.minecraftforge.registries.ForgeRegistries
+import net.minecraft.entity.SpawnGroup
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
+import net.minecraft.util.Identifier
 import org.sharo.sharoutils.Core
 
 class EntityTypes {
     companion object {
+        @JvmStatic lateinit var SHARO: EntityType<SharoEntity>
+
         @JvmStatic
-        val register: DeferredRegister<EntityType<*>> = DeferredRegister.create(ForgeRegistries.ENTITIES, Core.MODID)
-        @JvmStatic
-        val SHARO: RegistryObject<EntityType<SharoEntity>> = register.register("sharo") {
-            EntityType.Builder.create(::SharoEntity, EntityClassification.CREATURE)
-                .size(1f, 1f)
-                .build(ResourceLocation(Core.MODID, "sharo").toString())
+        fun register() {
+            val sharoKey =
+                    net.minecraft.registry.RegistryKey.of(
+                            net.minecraft.registry.RegistryKeys.ENTITY_TYPE,
+                            Identifier.of(Core.MODID, "sharo")
+                    )
+
+            SHARO =
+                    Registry.register(
+                            Registries.ENTITY_TYPE,
+                            Identifier.of(Core.MODID, "sharo"),
+                            EntityType.Builder.create(::SharoEntity, SpawnGroup.CREATURE)
+                                    .dimensions(1f, 1f)
+                                    .build(sharoKey)
+                    )
+
+            // Register entity attributes
+            FabricDefaultAttributeRegistry.register(SHARO, SharoEntity.createSharoAttributes())
         }
     }
 }
