@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "WWW",
+        "WSW",
+        "WWW"
+    ],
+    "key": {
+        "W": "minecraft:wheat",
+        "S": "sharoutils:sharo_ingot"
+    },
+    "result": {
+        "id": "sharoutils:sharo_manju",
+        "count": 1
+    }
+}

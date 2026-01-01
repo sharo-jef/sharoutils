@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "GGG",
+        "GSG",
+        "GGG"
+    ],
+    "key": {
+        "G": "minecraft:grass_block",
+        "S": "sharoutils:sharo_ingot"
+    },
+    "result": {
+        "id": "sharoutils:sharo_earth",
+        "count": 18
+    }
+}

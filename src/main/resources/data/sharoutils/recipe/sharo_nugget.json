@@ -1,0 +1,13 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "I"
+    ],
+    "key": {
+        "I": "sharoutils:sharo_ingot"
+    },
+    "result": {
+        "id": "sharoutils:sharo_nugget",
+        "count": 9
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "WWW",
+        "WEW",
+        "WWW"
+    ],
+    "key": {
+        "W": "minecraft:lime_wool",
+        "E": "minecraft:ender_pearl"
+    },
+    "result": {
+        "id": "sharoutils:elevator",
+        "count": 9
+    }
+}
