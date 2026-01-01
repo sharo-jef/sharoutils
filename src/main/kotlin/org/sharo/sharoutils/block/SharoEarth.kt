@@ -1,43 +1,51 @@
 package org.sharo.sharoutils.block
 
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.block.GrassBlock
-import net.minecraft.block.SoundType
-import net.minecraft.block.material.Material
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.SpawnReason
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
+import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.server.ServerWorld
-import net.minecraftforge.common.ToolType
-import net.minecraftforge.fml.common.Mod
+import net.minecraft.util.math.random.Random
 import org.sharo.sharoutils.Core
-import org.sharo.sharoutils.entity.EntityTypes
-import java.util.*
 
-@Mod.EventBusSubscriber(modid = Core.MODID)
-class SharoEarth : GrassBlock(
-    Properties
-        .create(Material.ROCK)
-        .hardnessAndResistance(3f, 10f)
-        .harvestLevel(1)
-        .harvestTool(ToolType.SHOVEL)
-        .sound(SoundType.WET_GRASS)
-        .tickRandomly()
-) {
-    override fun randomTick(state: BlockState, worldIn: ServerWorld, pos: BlockPos, random: Random) {
-        super.randomTick(state, worldIn, pos, random)
-        val entityTypes = arrayOf(
-            EntityType.SKELETON,
-            EntityType.ZOMBIE,
-            EntityType.SPIDER,
-            EntityType.CREEPER,
-            EntityType.ENDERMAN,
-            EntityTypes.SHARO.get(),
-        )
-        val rand = Random(System.currentTimeMillis())
-        val entityType = entityTypes[rand.nextInt(entityTypes.size)]
-        for (i in 1..rand.nextInt(3)) {
-            entityType.spawn(worldIn, null, null, pos, SpawnReason.EVENT, true, false)
+class SharoEarth :
+        GrassBlock(
+                Settings.copy(Blocks.GRASS_BLOCK)
+                        .strength(3f, 10f)
+                        .registryKey(
+                                RegistryKey.of(
+                                        RegistryKeys.BLOCK,
+                                        Identifier.of(Core.MODID, "sharo_earth")
+                                )
+                        )
+        ) {
+        override fun randomTick(
+                state: BlockState,
+                world: ServerWorld,
+                pos: BlockPos,
+                random: Random
+        ) {
+                super.randomTick(state, world, pos, random)
+                // Temporarily disabled Sharo entity to prevent crashes
+                val entityTypes =
+                        arrayOf(
+                                EntityType.SKELETON,
+                                EntityType.ZOMBIE,
+                                EntityType.SPIDER,
+                                EntityType.CREEPER,
+                                EntityType.ENDERMAN,
+                                // EntityTypes.SHARO,
+                                )
+                val entityType = entityTypes.random()
+                // Spawn 1 block above to prevent entities from being stuck in the block
+                val spawnPos = pos.up()
+                for (i in 1..random.nextInt(3)) {
+                        entityType.spawn(world, spawnPos, SpawnReason.EVENT)
+                }
         }
-    }
 }
