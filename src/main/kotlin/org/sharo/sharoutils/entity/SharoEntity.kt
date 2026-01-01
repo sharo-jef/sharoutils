@@ -6,7 +6,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.mob.MobEntity
-import net.minecraft.entity.mob.SkeletonEntity
+import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.mob.ZombifiedPiglinEntity
 import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.passive.MerchantEntity
@@ -14,11 +14,10 @@ import net.minecraft.entity.passive.TurtleEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
-import net.minecraft.world.LocalDifficulty
 import net.minecraft.world.World
 
-class SharoEntity(type: EntityType<out SkeletonEntity>, world: World) :
-        SkeletonEntity(type, world) {
+class SharoEntity(type: EntityType<out PathAwareEntity>, world: World) :
+        PathAwareEntity(type, world) {
     companion object {
         @JvmStatic
         fun createSharoAttributes(): DefaultAttributeContainer.Builder {
@@ -65,9 +64,4 @@ class SharoEntity(type: EntityType<out SkeletonEntity>, world: World) :
     override fun getHurtSound(source: DamageSource): SoundEvent = SoundEvents.ENTITY_ZOMBIE_HURT
 
     override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_ZOMBIE_DEATH
-
-    override fun initEquipment(
-            random: net.minecraft.util.math.random.Random,
-            difficulty: LocalDifficulty
-    ) {}
 }

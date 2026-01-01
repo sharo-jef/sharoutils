@@ -6,11 +6,13 @@ import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.util.Identifier
 import org.sharo.sharoutils.Core
+import org.sharo.sharoutils.entity.EntityTypes
 
 class SharoSpawnEgg :
         SpawnEggItem(
                 Item.Settings()
                         .maxCount(64)
+                        .spawnEgg(EntityTypes.SHARO)
                         .registryKey(
                                 RegistryKey.of(
                                         RegistryKeys.ITEM,

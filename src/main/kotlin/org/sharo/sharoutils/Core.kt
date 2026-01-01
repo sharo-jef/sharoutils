@@ -28,8 +28,8 @@ class Core : ModInitializer {
 
         // Initialize registries first
         Blocks.register()
-        Items.register()
         EntityTypes.register()
+        Items.register()
 
         // Register Item Group with items
         ITEM_GROUP =
@@ -43,8 +43,7 @@ class Core : ModInitializer {
                             entries.add(Items.SHARO_NUGGET)
                             entries.add(Items.SHARO_EARTH)
                             entries.add(Items.ELEVATOR)
-                            // Temporarily disabled to prevent crashes
-                            // entries.add(Items.SHARO_SPAWN_EGG)
+                            entries.add(Items.SHARO_SPAWN_EGG)
                         }
                         .build()
 
