@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "sharoutils",
+  "version": "${version}",
+  "name": "Sharo Utilities",
+  "description": "Sharo Utilities",
+  "authors": [
+    "sharo_jef"
+  ],
+  "contact": {
+    "homepage": "https://github.com/sharo-jef/sharoutils",
+    "sources": "https://github.com/sharo-jef/sharoutils"
+  },
+  "license": "MIT",
+  "icon": "assets/sharoutils/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "org.sharo.sharoutils.Core"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "org.sharo.sharoutils.client.ClientInitializer"
+      }
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "fabric-api": "*",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-language-kotlin": ">=1.13.0"
+  },
+  "suggests": {},
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.github": "https://github.com/sharo-jef/sharoutils"
+      }
+    }
+  }
+}
