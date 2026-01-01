@@ -25,6 +25,27 @@ class SharoEntityRenderer(context: EntityRendererFactory.Context) :
         return BipedEntityRenderState()
     }
 
+    override fun updateRenderState(
+            entity: SharoEntity,
+            state: BipedEntityRenderState,
+            tickDelta: Float
+    ) {
+        super.updateRenderState(entity, state, tickDelta)
+        state.handSwingProgress = entity.getHandSwingProgress(tickDelta)
+        state.isUsingItem = entity.isUsingItem
+        state.itemUseTime = entity.itemUseTime.toFloat()
+        state.activeHand = entity.activeHand
+
+        // Set bow attack pose when entity is actively using a bow
+        val isHoldingBow =
+                entity.mainHandStack.item is net.minecraft.item.BowItem ||
+                        entity.offHandStack.item is net.minecraft.item.BowItem
+        if (isHoldingBow && entity.isUsingItem) {
+            state.rightArmPose = BipedEntityModel.ArmPose.BOW_AND_ARROW
+            state.leftArmPose = BipedEntityModel.ArmPose.BOW_AND_ARROW
+        }
+    }
+
     override fun getTexture(state: BipedEntityRenderState): Identifier {
         return TEXTURE
     }
