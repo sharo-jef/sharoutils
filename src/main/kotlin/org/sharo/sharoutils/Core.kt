@@ -11,6 +11,7 @@ import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.sharo.sharoutils.block.Blocks
+import org.sharo.sharoutils.config.ModConfig
 import org.sharo.sharoutils.entity.EntityTypes
 import org.sharo.sharoutils.item.Items
 
@@ -25,6 +26,9 @@ class Core : ModInitializer {
 
     override fun onInitialize() {
         logger.info("Initializing Sharo Utilities for Fabric")
+
+        // Load configuration first
+        ModConfig.load()
 
         // Initialize registries first
         Blocks.register()
@@ -52,6 +56,7 @@ class Core : ModInitializer {
         // Register events
         org.sharo.sharoutils.item.SharoRing.registerEvents()
         org.sharo.sharoutils.common.ElevatorEventHandler.register()
+        org.sharo.sharoutils.event.RecipeHandler.register()
 
         logger.info("Sharo Utilities initialized")
     }
