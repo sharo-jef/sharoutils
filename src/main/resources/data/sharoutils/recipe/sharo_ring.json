@@ -11,5 +11,11 @@
     "result": {
         "id": "sharoutils:sharo_ring",
         "count": 1
-    }
+    },
+    "fabric:load_conditions": [
+        {
+            "condition": "sharoutils:config_enabled",
+            "config_key": "sharoRingCraftingEnabled"
+        }
+    ]
 }
