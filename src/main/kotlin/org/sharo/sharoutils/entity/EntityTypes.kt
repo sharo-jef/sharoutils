@@ -30,10 +30,7 @@ class EntityTypes {
                                 Registry.register(
                                         Registries.ENTITY_TYPE,
                                         Identifier.of(Core.MODID, "sharo"),
-                                        EntityType.Builder.create(
-                                                        ::SharoEntity,
-                                                        SpawnGroup.CREATURE
-                                                )
+                                        EntityType.Builder.create(::SharoEntity, SpawnGroup.AMBIENT)
                                                 .dimensions(0.6f, 1.8f)
                                                 .build(sharoKey)
                                 )
@@ -52,14 +49,14 @@ class EntityTypes {
                                 SharoEntity::canSpawn
                         )
 
-                        // Add spawn to biomes
+                        // Add spawn to biomes (AMBIENT = 独立したスポーン枠、昼夜問わず)
                         BiomeModifications.addSpawn(
                                 BiomeSelectors.tag(BiomeTags.IS_OVERWORLD),
-                                SpawnGroup.CREATURE,
+                                SpawnGroup.AMBIENT,
                                 SHARO,
-                                10, // weight
-                                1, // min group size
-                                3 // max group size
+                                100, // weight (大幅増加で動作確認用)
+                                2, // min group size
+                                4 // max group size
                         )
                 }
         }

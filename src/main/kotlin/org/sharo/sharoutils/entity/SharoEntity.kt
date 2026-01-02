@@ -201,9 +201,10 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
                 pos: BlockPos,
                 @Suppress("UNUSED_PARAMETER") random: Random
         ): Boolean {
-            // Spawn on solid blocks with sufficient light (like animals)
+            // 暗い場所 + 空が見える場所（地上）でのみスポーン
             return world.getBlockState(pos.down()).isSolidBlock(world, pos.down()) &&
-                    world.getBaseLightLevel(pos, 0) > 8
+                    world.getBaseLightLevel(pos, 0) < 7 &&
+                    world.isSkyVisible(pos)
         }
     }
 
@@ -327,11 +328,11 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         return weapon.isOf(Items.BOW)
     }
 
-    override fun getAmbientSound(): SoundEvent = SoundEvents.ENTITY_ZOMBIE_AMBIENT
+    override fun getAmbientSound(): SoundEvent = SoundEvents.ENTITY_VILLAGER_AMBIENT
 
-    override fun getHurtSound(source: DamageSource): SoundEvent = SoundEvents.ENTITY_ZOMBIE_HURT
+    override fun getHurtSound(source: DamageSource): SoundEvent = SoundEvents.ENTITY_VILLAGER_HURT
 
-    override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_ZOMBIE_DEATH
+    override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_VILLAGER_DEATH
 
     // Damage handling - become angry when attacked
     override fun damage(world: ServerWorld, source: DamageSource, amount: Float): Boolean {
