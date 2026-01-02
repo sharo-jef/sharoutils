@@ -27,6 +27,7 @@ import net.minecraft.util.math.random.Random
 import net.minecraft.world.LocalDifficulty
 import net.minecraft.world.ServerWorldAccess
 import net.minecraft.world.World
+import org.sharo.sharoutils.entity.goal.PlayfulPlayerInteractionGoal
 
 class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         HostileEntity(type, world), RangedAttackMob, Angerable {
@@ -211,9 +212,13 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         goalSelector.add(1, SwimGoal(this))
         // Attack goals are added dynamically by updateAttackType()
         goalSelector.add(3, PickupBetterWeaponGoal(this, 1.2, 16.0))
-        goalSelector.add(4, WanderAroundFarGoal(this, 1.0))
-        goalSelector.add(5, LookAtEntityGoal(this, PlayerEntity::class.java, 8.0f))
-        goalSelector.add(6, LookAroundGoal(this))
+
+        // Playful player interaction - 超低確率で発動
+        goalSelector.add(4, PlayfulPlayerInteractionGoal(this))
+
+        goalSelector.add(5, WanderAroundFarGoal(this, 1.0))
+        goalSelector.add(6, LookAtEntityGoal(this, PlayerEntity::class.java, 8.0f))
+        goalSelector.add(7, LookAroundGoal(this))
 
         // Target goals - attack hostile mobs and defend against attacks
         // Universal anger system - attack together like zombie piglins
