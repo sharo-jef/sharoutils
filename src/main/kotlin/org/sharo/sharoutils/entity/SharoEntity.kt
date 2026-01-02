@@ -10,6 +10,7 @@ import net.minecraft.entity.mob.*
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.ArrowEntity
 import net.minecraft.item.Items
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.util.math.BlockPos
@@ -18,9 +19,13 @@ import net.minecraft.world.ServerWorldAccess
 import net.minecraft.world.World
 
 class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
-        HostileEntity(type, world), RangedAttackMob {
+        HostileEntity(type, world), RangedAttackMob, Angerable {
 
     private var hasBow = false
+
+    // Anger management fields
+    private var angerEndTime: Long = 0L
+    private var angryAt: LazyEntityReference<LivingEntity>? = null
 
     override fun initialize(
             world: net.minecraft.world.ServerWorldAccess,
@@ -40,6 +45,8 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     }
 
     companion object {
+        private val ANGER_TIME_RANGE =
+                net.minecraft.util.math.intprovider.UniformIntProvider.create(20, 39)
         @JvmStatic
         fun createSharoAttributes(): DefaultAttributeContainer.Builder {
             return MobEntity.createMobAttributes()
@@ -94,20 +101,9 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         goalSelector.add(6, LookAroundGoal(this))
 
         // Target goals - attack hostile mobs and defend against attacks
-        // Don't attack other Sharo entities when taking revenge
-        targetSelector.add(
-                1,
-                object : RevengeGoal(this) {
-                    override fun canStart(): Boolean {
-                        return super.canStart() && target !is SharoEntity
-                    }
-                    override fun setMobEntityTarget(mob: MobEntity?, target: LivingEntity?) {
-                        if (target !is SharoEntity) {
-                            super.setMobEntityTarget(mob, target)
-                        }
-                    }
-                }
-        )
+        // Universal anger system - attack together like zombie piglins
+        // When attacked by any entity (including players), will become angry and attack back
+        targetSelector.add(1, RevengeGoal(this).setGroupRevenge(SharoEntity::class.java))
         targetSelector.add(2, ActiveTargetGoal(this, ZombieEntity::class.java, true))
         targetSelector.add(2, ActiveTargetGoal(this, SkeletonEntity::class.java, true))
         targetSelector.add(2, ActiveTargetGoal(this, SpiderEntity::class.java, true))
@@ -122,14 +118,16 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         )
         targetSelector.add(2, ActiveTargetGoal(this, WitchEntity::class.java, true))
         targetSelector.add(2, ActiveTargetGoal(this, SlimeEntity::class.java, true))
-        // Use a filter to exclude Creepers from general hostile targeting
+        // Use a filter to exclude Creepers and Enderman from general hostile targeting
         targetSelector.add(
                 3,
                 object : ActiveTargetGoal<HostileEntity>(this, HostileEntity::class.java, true) {
                     override fun canStart(): Boolean {
                         if (!super.canStart()) return false
-                        val currentTarget = this.mob.target
-                        return currentTarget !is CreeperEntity && currentTarget !is EndermanEntity
+                        val potentialTarget = this.targetEntity
+                        // Exclude Creepers (爆発するので) and Enderman (already handled above)
+                        return potentialTarget !is CreeperEntity &&
+                                potentialTarget !is EndermanEntity
                     }
                 }
         )
@@ -198,4 +196,88 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     override fun getHurtSound(source: DamageSource): SoundEvent = SoundEvents.ENTITY_ZOMBIE_HURT
 
     override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_ZOMBIE_DEATH
+
+    // Damage handling - become angry when attacked
+    override fun damage(world: ServerWorld, source: DamageSource, amount: Float): Boolean {
+        val result = super.damage(world, source, amount)
+
+        if (result && !world.isClient) {
+            // Become angry when attacked by a living entity
+            val attacker = source.attacker
+            if (attacker is LivingEntity && attacker !is SharoEntity) {
+                this.chooseRandomAngerTime()
+                this.setAngryAt(LazyEntityReference.of(attacker))
+
+                // Spread anger to nearby Sharo entities immediately (like zombie piglins)
+                val nearbySharers =
+                        world.getEntitiesByClass(
+                                SharoEntity::class.java,
+                                this.boundingBox.expand(32.0)
+                        ) { it != this }
+
+                for (sharo in nearbySharers) {
+                    sharo.chooseRandomAngerTime()
+                    sharo.setAngryAt(LazyEntityReference.of(attacker))
+                    // Also set target directly for immediate attack
+                    sharo.target = attacker
+                }
+
+                // Debug: Print to verify this is being called
+                println(
+                        "Sharo attacked by ${attacker.name.string}, spreading anger to ${nearbySharers.size} nearby Sharos"
+                )
+            }
+        }
+
+        return result
+    }
+
+    // Angerable interface implementation
+    override fun getAngerEndTime(): Long {
+        return this.angerEndTime
+    }
+
+    override fun setAngerEndTime(time: Long) {
+        this.angerEndTime = time
+    }
+
+    override fun chooseRandomAngerTime() {
+        val angerTime = ANGER_TIME_RANGE.get(this.random) * 20 // Convert to ticks
+        this.angerEndTime = this.getEntityWorld().time + angerTime
+    }
+
+    override fun setAngryAt(angryAt: LazyEntityReference<LivingEntity>?) {
+        this.angryAt = angryAt
+    }
+
+    override fun getAngryAt(): LazyEntityReference<LivingEntity>? {
+        return this.angryAt
+    }
+
+    override fun canTarget(type: EntityType<*>?): Boolean {
+        // Don't target other Sharo entities
+        return type != EntityTypes.SHARO && super.canTarget(type)
+    }
+
+    // Tick method to update anger
+    override fun mobTick(world: ServerWorld) {
+        super.mobTick(world)
+
+        // Clear anger if time expired
+        if (this.angerEndTime > 0 && world.time >= this.angerEndTime) {
+            this.angerEndTime = 0L
+            this.angryAt = null
+        }
+    }
+
+    // NBT serialization for anger state
+    override fun writeCustomData(view: net.minecraft.storage.WriteView) {
+        super.writeCustomData(view)
+        this.writeAngerToData(view)
+    }
+
+    override fun readCustomData(view: net.minecraft.storage.ReadView) {
+        super.readCustomData(view)
+        this.readAngerFromData(this.getEntityWorld(), view)
+    }
 }
