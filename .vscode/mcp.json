@@ -1,0 +1,25 @@
+{
+    "servers": {
+        "minecraft-wiki-mcp": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "github:sharo-jef/minecraft-wiki-mcp"
+            ]
+        },
+        "datapack-validator": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "github:sharo-jef/datapack-mcp-server"
+            ]
+        },
+        "websearch": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "github:sharo-jef/web-search-mcp"
+            ]
+        }
+    }
+}
