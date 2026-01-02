@@ -20,7 +20,7 @@ class PlayfulPlayerInteractionGoal(private val entity: SharoEntity) : Goal() {
     private var previousWeapon: ItemStack? = null
 
     // 確率設定（0.0001 = 0.01%の確率で1ティックあたり発動チェック）
-    private val triggerChance = 1
+    private val triggerChance = 0.0001
 
     // ランダムに選択されるアクションの種類
     private enum class PlayfulAction {
