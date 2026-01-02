@@ -13,6 +13,7 @@ import net.minecraft.registry.tag.BiomeTags
 import net.minecraft.util.Identifier
 import net.minecraft.world.Heightmap
 import org.sharo.sharoutils.Core
+import org.sharo.sharoutils.config.ModConfig
 
 class EntityTypes {
         companion object {
@@ -50,14 +51,17 @@ class EntityTypes {
                         )
 
                         // Add spawn to biomes (AMBIENT = 独立したスポーン枠、昼夜問わず)
-                        BiomeModifications.addSpawn(
-                                BiomeSelectors.tag(BiomeTags.IS_OVERWORLD),
-                                SpawnGroup.AMBIENT,
-                                SHARO,
-                                100, // weight (大幅増加で動作確認用)
-                                2, // min group size
-                                4 // max group size
-                        )
+                        // Only register natural spawning if enabled in config
+                        if (ModConfig.INSTANCE.sharoNaturalSpawnEnabled) {
+                                BiomeModifications.addSpawn(
+                                        BiomeSelectors.tag(BiomeTags.IS_OVERWORLD),
+                                        SpawnGroup.AMBIENT,
+                                        SHARO,
+                                        ModConfig.INSTANCE.sharoSpawnWeight,
+                                        ModConfig.INSTANCE.sharoSpawnMinGroupSize,
+                                        ModConfig.INSTANCE.sharoSpawnMaxGroupSize
+                                )
+                        }
                 }
         }
 }

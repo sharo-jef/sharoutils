@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.goal.Goal
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.server.world.ServerWorld
+import org.sharo.sharoutils.config.ModConfig
 import org.sharo.sharoutils.entity.SharoEntity
 import org.sharo.sharoutils.item.Items
 
@@ -18,9 +19,6 @@ class PlayfulPlayerInteractionGoal(private val entity: SharoEntity) : Goal() {
     private var actionTick = 0
     private var crouchCount = 0
     private var previousWeapon: ItemStack? = null
-
-    // 確率設定（0.0001 = 0.01%の確率で1ティックあたり発動チェック）
-    private val triggerChance = 0.0001
 
     // ランダムに選択されるアクションの種類
     private enum class PlayfulAction {
@@ -48,8 +46,9 @@ class PlayfulPlayerInteractionGoal(private val entity: SharoEntity) : Goal() {
         // 既にアクション中なら継続
         if (actionState != ActionState.IDLE) return true
 
-        // 超低確率でチェック
-        if (entity.getEntityWorld().random.nextDouble() > triggerChance) return false
+        // 超低確率でチェック（設定から取得）
+        if (entity.getEntityWorld().random.nextDouble() > ModConfig.INSTANCE.playfulTriggerChance)
+                return false
 
         // 近くのプレイヤーを探す（24ブロック以内）
         val nearbyPlayer = entity.getEntityWorld().getClosestPlayer(entity, 24.0)

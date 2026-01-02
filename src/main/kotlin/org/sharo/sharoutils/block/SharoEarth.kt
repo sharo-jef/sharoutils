@@ -12,6 +12,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.random.Random
 import org.sharo.sharoutils.Core
+import org.sharo.sharoutils.config.ModConfig
 
 class SharoEarth :
         GrassBlock(
@@ -31,6 +32,12 @@ class SharoEarth :
                 random: Random
         ) {
                 super.randomTick(state, world, pos, random)
+
+                // Check if spawning is enabled in config
+                if (!ModConfig.INSTANCE.sharoEarthSpawnEnabled) {
+                        return
+                }
+
                 // Temporarily disabled Sharo entity to prevent crashes
                 val entityTypes =
                         arrayOf(
@@ -44,7 +51,15 @@ class SharoEarth :
                 val entityType = entityTypes.random()
                 // Spawn 1 block above to prevent entities from being stuck in the block
                 val spawnPos = pos.up()
-                for (i in 1..random.nextInt(3)) {
+                val minCount = ModConfig.INSTANCE.sharoEarthSpawnMinCount
+                val maxCount = ModConfig.INSTANCE.sharoEarthSpawnMaxCount
+                val spawnCount =
+                        if (maxCount > minCount) {
+                                random.nextInt(maxCount - minCount + 1) + minCount
+                        } else {
+                                minCount
+                        }
+                for (i in 1..spawnCount) {
                         entityType.spawn(world, spawnPos, SpawnReason.EVENT)
                 }
         }
