@@ -28,6 +28,7 @@ import net.minecraft.util.math.random.Random
 import net.minecraft.world.LocalDifficulty
 import net.minecraft.world.ServerWorldAccess
 import net.minecraft.world.World
+import org.sharo.sharoutils.entity.goal.EatSharoManjuGoal
 import org.sharo.sharoutils.entity.goal.PlayfulPlayerInteractionGoal
 
 class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
@@ -38,7 +39,8 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     private var angryAt: LazyEntityReference<LivingEntity>? = null
 
     // Playful interaction goal - stored as field to access stored weapon on death
-    private val playfulGoal = PlayfulPlayerInteractionGoal(this)
+    // Must be lateinit because initGoals() is called from parent constructor
+    private lateinit var playfulGoal: PlayfulPlayerInteractionGoal
 
     // Attack goals - stored as fields so we can dynamically switch them
     private val bowAttackGoal =
@@ -227,17 +229,23 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     }
 
     override fun initGoals() {
+        // Initialize playfulGoal here because initGoals is called from parent constructor
+        playfulGoal = PlayfulPlayerInteractionGoal(this)
+
         // Basic behavior goals
         goalSelector.add(1, SwimGoal(this))
-        // Attack goals are added dynamically by updateAttackType()
-        goalSelector.add(3, PickupBetterWeaponGoal(this, 1.2, 16.0))
+        // Pickup better weapon - high priority to grab weapons during combat
+        goalSelector.add(2, PickupBetterWeaponGoal(this, 1.2, 16.0))
+        // Attack goals are added dynamically by updateAttackType() (priority 2-3)
+        // HP が少なくなったら sharo manju を食べて回復
+        goalSelector.add(4, EatSharoManjuGoal(this))
 
         // Playful player interaction - 超低確率で発動
-        goalSelector.add(4, playfulGoal)
+        goalSelector.add(6, playfulGoal)
 
-        goalSelector.add(5, WanderAroundFarGoal(this, 1.0))
-        goalSelector.add(6, LookAtEntityGoal(this, PlayerEntity::class.java, 8.0f))
-        goalSelector.add(7, LookAroundGoal(this))
+        goalSelector.add(7, WanderAroundFarGoal(this, 1.0))
+        goalSelector.add(8, LookAtEntityGoal(this, PlayerEntity::class.java, 8.0f))
+        goalSelector.add(9, LookAroundGoal(this))
 
         // Target goals - attack hostile mobs and defend against attacks
         // Universal anger system - attack together like zombie piglins
@@ -707,13 +715,17 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
 
     override fun onDeath(damageSource: DamageSource) {
         // Drop any weapon that was temporarily stored during playful interaction
-        val storedWeapon = playfulGoal.getStoredWeapon()
-        if (storedWeapon != null && !storedWeapon.isEmpty) {
-            val serverWorld = getEntityWorld() as? ServerWorld
-            if (serverWorld != null) {
-                val droppedItem = dropStack(serverWorld, storedWeapon)
-                // Make sure the dropped item can be picked up immediately
-                droppedItem?.setToDefaultPickupDelay()
+        // Check if playfulGoal is initialized (it might not be if entity was loaded from old save
+        // data)
+        if (::playfulGoal.isInitialized) {
+            val storedWeapon = playfulGoal.getStoredWeapon()
+            if (storedWeapon != null && !storedWeapon.isEmpty) {
+                val serverWorld = getEntityWorld() as? ServerWorld
+                if (serverWorld != null) {
+                    val droppedItem = dropStack(serverWorld, storedWeapon)
+                    // Make sure the dropped item can be picked up immediately
+                    droppedItem?.setToDefaultPickupDelay()
+                }
             }
         }
 
