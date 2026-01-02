@@ -251,4 +251,12 @@ class PlayfulPlayerInteractionGoal(private val entity: SharoEntity) : Goal() {
             stop()
         }
     }
+
+    /**
+     * Get the weapon that was temporarily removed during playful interaction. This is used to drop
+     * the weapon when the entity dies during playful state.
+     */
+    fun getStoredWeapon(): ItemStack? {
+        return previousWeapon
+    }
 }

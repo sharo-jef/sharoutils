@@ -5,6 +5,7 @@ import net.minecraft.component.type.AttributeModifiersComponent
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.provider.EnchantmentProviders
 import net.minecraft.entity.*
+import net.minecraft.entity.CrossbowUser
 import net.minecraft.entity.ai.RangedAttackMob
 import net.minecraft.entity.ai.goal.*
 import net.minecraft.entity.ai.pathing.Path
@@ -30,23 +31,35 @@ import net.minecraft.world.World
 import org.sharo.sharoutils.entity.goal.PlayfulPlayerInteractionGoal
 
 class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
-        HostileEntity(type, world), RangedAttackMob, Angerable {
+        HostileEntity(type, world), RangedAttackMob, CrossbowUser, Angerable {
 
     // Anger management fields
     private var angerEndTime: Long = 0L
     private var angryAt: LazyEntityReference<LivingEntity>? = null
 
+    // Playful interaction goal - stored as field to access stored weapon on death
+    private val playfulGoal = PlayfulPlayerInteractionGoal(this)
+
     // Attack goals - stored as fields so we can dynamically switch them
     private val bowAttackGoal =
             object : BowAttackGoal<SharoEntity>(this, 1.0, 20, 15.0f) {
-                override fun canStart(): Boolean = isHoldingBow() && super.canStart()
-                override fun shouldContinue(): Boolean = isHoldingBow() && super.shouldContinue()
+                override fun canStart(): Boolean = isHoldingRangedWeapon() && super.canStart()
+                override fun shouldContinue(): Boolean =
+                        isHoldingRangedWeapon() && super.shouldContinue()
+            }
+
+    private val crossbowAttackGoal =
+            object : CrossbowAttackGoal<SharoEntity>(this, 1.0, 8.0f) {
+                override fun canStart(): Boolean = isHoldingCrossbow() && super.canStart()
+                override fun shouldContinue(): Boolean =
+                        isHoldingCrossbow() && super.shouldContinue()
             }
 
     private val meleeAttackGoal =
             object : MeleeAttackGoal(this, 1.2, false) {
-                override fun canStart(): Boolean = !isHoldingBow() && super.canStart()
-                override fun shouldContinue(): Boolean = !isHoldingBow() && super.shouldContinue()
+                override fun canStart(): Boolean = !isHoldingRangedWeapon() && super.canStart()
+                override fun shouldContinue(): Boolean =
+                        !isHoldingRangedWeapon() && super.shouldContinue()
             }
 
     override fun initialize(
@@ -160,15 +173,20 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
 
     /**
      * Update AI based on current equipment
-     * - If holding bow: use ranged attack
+     * - If holding bow: use bow attack
+     * - If holding crossbow: use crossbow attack
      * - Otherwise: use melee attack
      */
     fun updateAttackType() {
         if (getEntityWorld() != null && !getEntityWorld().isClient) {
             goalSelector.remove(bowAttackGoal)
+            goalSelector.remove(crossbowAttackGoal)
+            goalSelector.remove(meleeAttackGoal)
 
             if (isHoldingBow()) {
                 goalSelector.add(2, bowAttackGoal)
+            } else if (isHoldingCrossbow()) {
+                goalSelector.add(2, crossbowAttackGoal)
             } else {
                 goalSelector.add(3, meleeAttackGoal)
             }
@@ -215,7 +233,7 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         goalSelector.add(3, PickupBetterWeaponGoal(this, 1.2, 16.0))
 
         // Playful player interaction - 超低確率で発動
-        goalSelector.add(4, PlayfulPlayerInteractionGoal(this))
+        goalSelector.add(4, playfulGoal)
 
         goalSelector.add(5, WanderAroundFarGoal(this, 1.0))
         goalSelector.add(6, LookAtEntityGoal(this, PlayerEntity::class.java, 8.0f))
@@ -228,12 +246,12 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         targetSelector.add(2, ActiveTargetGoal(this, ZombieEntity::class.java, true))
         targetSelector.add(2, ActiveTargetGoal(this, SkeletonEntity::class.java, true))
         targetSelector.add(2, ActiveTargetGoal(this, SpiderEntity::class.java, true))
-        // Only target Enderman if not holding a bow (they teleport away from arrows)
+        // Only target Enderman if not holding a ranged weapon (they teleport away from projectiles)
         targetSelector.add(
                 2,
                 object : ActiveTargetGoal<EndermanEntity>(this, EndermanEntity::class.java, true) {
                     override fun canStart(): Boolean {
-                        return !this@SharoEntity.isHoldingBow() && super.canStart()
+                        return !this@SharoEntity.isHoldingRangedWeapon() && super.canStart()
                     }
                 }
         )
@@ -256,6 +274,14 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
 
     private fun isHoldingBow(): Boolean {
         return mainHandStack.isOf(Items.BOW) || offHandStack.isOf(Items.BOW)
+    }
+
+    private fun isHoldingCrossbow(): Boolean {
+        return mainHandStack.isOf(Items.CROSSBOW) || offHandStack.isOf(Items.CROSSBOW)
+    }
+
+    private fun isHoldingRangedWeapon(): Boolean {
+        return isHoldingBow() || isHoldingCrossbow()
     }
 
     override fun onEquipStack(slot: EquipmentSlot, oldStack: ItemStack, newStack: ItemStack) {
@@ -295,7 +321,7 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     }
 
     override fun shootAt(target: LivingEntity, pullProgress: Float) {
-        // Only shoot if holding a bow
+        // Only shoot if holding a bow (crossbow is handled by CrossbowAttackGoal)
         if (!mainHandStack.isOf(Items.BOW) && !offHandStack.isOf(Items.BOW)) {
             return
         }
@@ -534,7 +560,14 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
                     weaponItem == Items.GOLDEN_AXE ||
                     weaponItem == Items.DIAMOND_AXE ||
                     weaponItem == Items.NETHERITE_AXE ||
-                    weaponItem == Items.TRIDENT ||
+                    weaponItem == Items.WOODEN_SPEAR ||
+                    weaponItem == Items.STONE_SPEAR ||
+                    weaponItem == Items.COPPER_SPEAR ||
+                    weaponItem == Items.IRON_SPEAR ||
+                    weaponItem == Items.GOLDEN_SPEAR ||
+                    weaponItem == Items.DIAMOND_SPEAR ||
+                    weaponItem == Items.NETHERITE_SPEAR ||
+                    weaponItem == Items.MACE ||
                     weaponItem == Items.CROSSBOW
         }
 
@@ -593,6 +626,11 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
                 power = 5.0 // Lower than most swords
             }
 
+            // Special handling for mace
+            if (item == Items.MACE) {
+                power = 7.0 // Mace is a strong weapon
+            }
+
             // If no power from attributes, return 0
             if (power == 0.0 && item != Items.BOW && item != Items.CROSSBOW) {
                 return 0.0
@@ -641,13 +679,19 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
             val newWeapon = itemEntity.stack.copy()
             val oldWeapon = mob.mainHandStack.copy()
 
+            // Drop the old weapon BEFORE equipping the new one
+            // This ensures the weapon is dropped even if something goes wrong
+            if (!oldWeapon.isEmpty) {
+                val serverWorld = mob.getEntityWorld() as ServerWorld
+                val droppedItem = mob.dropStack(serverWorld, oldWeapon)
+                // Make sure the dropped item can be picked up immediately
+                droppedItem?.setToDefaultPickupDelay()
+            }
+
             // Equip the new weapon
             mob.equipStack(EquipmentSlot.MAINHAND, newWeapon)
-
-            // Drop the old weapon if it exists
-            if (!oldWeapon.isEmpty) {
-                mob.dropStack(mob.getEntityWorld() as ServerWorld, oldWeapon)
-            }
+            // Ensure the new weapon will drop when the entity dies
+            mob.setEquipmentDropChance(EquipmentSlot.MAINHAND, 1.0f)
 
             // Remove the item entity from the world
             itemEntity.discard()
@@ -659,5 +703,30 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     override fun writeCustomData(view: net.minecraft.storage.WriteView) {
         super.writeCustomData(view)
         writeAngerToData(view)
+    }
+
+    override fun onDeath(damageSource: DamageSource) {
+        // Drop any weapon that was temporarily stored during playful interaction
+        val storedWeapon = playfulGoal.getStoredWeapon()
+        if (storedWeapon != null && !storedWeapon.isEmpty) {
+            val serverWorld = getEntityWorld() as? ServerWorld
+            if (serverWorld != null) {
+                val droppedItem = dropStack(serverWorld, storedWeapon)
+                // Make sure the dropped item can be picked up immediately
+                droppedItem?.setToDefaultPickupDelay()
+            }
+        }
+
+        super.onDeath(damageSource)
+    }
+
+    // CrossbowUser implementation
+    override fun setCharging(charging: Boolean) {
+        // CrossbowAttackGoal manages the charging state
+        // We don't need to manually set the hand here
+    }
+
+    override fun postShoot() {
+        // Called after shooting with crossbow
     }
 }
