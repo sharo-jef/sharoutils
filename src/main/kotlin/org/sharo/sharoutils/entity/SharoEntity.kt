@@ -1,10 +1,13 @@
 package org.sharo.sharoutils.entity
 
+import net.minecraft.component.type.AttributeModifierSlot
+import net.minecraft.component.type.AttributeModifiersComponent
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.provider.EnchantmentProviders
 import net.minecraft.entity.*
 import net.minecraft.entity.ai.RangedAttackMob
 import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.ai.pathing.Path
 import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
@@ -207,6 +210,7 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         // Basic behavior goals
         goalSelector.add(1, SwimGoal(this))
         // Attack goals are added dynamically by updateAttackType()
+        goalSelector.add(3, PickupBetterWeaponGoal(this, 1.2, 16.0))
         goalSelector.add(4, WanderAroundFarGoal(this, 1.0))
         goalSelector.add(5, LookAtEntityGoal(this, PlayerEntity::class.java, 8.0f))
         goalSelector.add(6, LookAroundGoal(this))
@@ -293,7 +297,8 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         val itemStack = getProjectileType(mainHandStack)
         val arrow = ArrowEntity(getEntityWorld(), this, itemStack, null)
         val d = target.x - x
-        val e = target.getEyeY() - 0.1 - arrow.y
+        // Fix: Aim at body center instead of eye level (target.y + height/3 instead of eyeY - 0.1)
+        val e = target.y + (target.height / 3.0) - arrow.y
         val f = target.z - z
         val g = Math.sqrt(d * d + f * f)
 
@@ -392,6 +397,259 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     }
 
     // NBT serialization for anger state
+
+    /**
+     * Custom Goal: Pick up better weapons from the ground
+     * - Only picks up weapons stronger than current equipment
+     * - Drops current weapon when picking up a new one
+     */
+    private class PickupBetterWeaponGoal(
+            private val mob: SharoEntity,
+            private val speed: Double,
+            private val maxDistance: Double
+    ) : Goal() {
+        private var targetItem: ItemEntity? = null
+        private var path: Path? = null
+        private var cooldown = 0
+
+        init {
+            controls = java.util.EnumSet.of(Control.MOVE)
+        }
+
+        override fun canStart(): Boolean {
+            // Decrease cooldown
+            if (cooldown > 0) {
+                cooldown--
+                return false
+            }
+
+            // Don't pick up if already has a target
+            if (mob.target != null) {
+                return false
+            }
+
+            // Find nearby item entities
+            val nearbyItems =
+                    mob.getEntityWorld().getEntitiesByClass(
+                                    ItemEntity::class.java,
+                                    mob.boundingBox.expand(maxDistance)
+                            ) { itemEntity ->
+                        !itemEntity.cannotPickup() &&
+                                isWeapon(itemEntity.stack) &&
+                                isStrongerThanCurrent(itemEntity.stack)
+                    }
+
+            // Debug: Log when items are found
+            if (!mob.getEntityWorld().isClient && nearbyItems.isNotEmpty()) {
+                println("[PickupWeaponGoal] Found ${nearbyItems.size} better weapons nearby")
+            }
+
+            if (nearbyItems.isEmpty()) {
+                // No better weapons found - set a short cooldown to avoid spam
+                cooldown = 20 // 1 second cooldown
+                return false
+            }
+
+            // Find the closest better weapon
+            targetItem = nearbyItems.minByOrNull { it.squaredDistanceTo(mob) }
+
+            if (targetItem == null) {
+                return false
+            }
+
+            // Try to path to the item
+            path = mob.navigation.findPathTo(targetItem!!, 0)
+            return path != null
+        }
+
+        override fun shouldContinue(): Boolean {
+            // Stop if item is gone, picked up, or we have a target to attack
+            if (targetItem == null || !targetItem!!.isAlive || mob.target != null) {
+                return false
+            }
+
+            // Stop if too far away
+            if (mob.squaredDistanceTo(targetItem!!) > maxDistance * maxDistance) {
+                return false
+            }
+
+            return !mob.navigation.isIdle
+        }
+
+        override fun start() {
+            if (path != null) {
+                mob.navigation.startMovingAlong(path, speed)
+            }
+        }
+
+        override fun stop() {
+            targetItem = null
+            path = null
+            mob.navigation.stop()
+
+            // Apply cooldown only if we didn't pick up the item (e.g., path failed, item taken by
+            // another entity)
+            // Cooldown is already set to 0 in tick() when successfully picking up
+            if (cooldown != 0) {
+                cooldown = 100 // 5 seconds cooldown for failed attempts
+            }
+        }
+
+        override fun tick() {
+            val item = targetItem ?: return
+
+            // Check if close enough to pick up
+            if (mob.squaredDistanceTo(item) < 2.0) {
+                pickupWeapon(item)
+                // Clear cooldown so we can immediately look for another weapon
+                cooldown = 0
+                stop()
+            } else {
+                // Look at the item while moving
+                mob.lookControl.lookAt(item, 30.0f, 30.0f)
+            }
+        }
+
+        /** Check if the given item is a weapon */
+        private fun isWeapon(item: ItemStack): Boolean {
+            if (item.isEmpty) return false
+            val weaponItem = item.item
+            // Check common weapon items
+            return weaponItem == Items.BOW ||
+                    weaponItem == Items.WOODEN_SWORD ||
+                    weaponItem == Items.STONE_SWORD ||
+                    weaponItem == Items.IRON_SWORD ||
+                    weaponItem == Items.GOLDEN_SWORD ||
+                    weaponItem == Items.DIAMOND_SWORD ||
+                    weaponItem == Items.NETHERITE_SWORD ||
+                    weaponItem == Items.WOODEN_AXE ||
+                    weaponItem == Items.STONE_AXE ||
+                    weaponItem == Items.IRON_AXE ||
+                    weaponItem == Items.GOLDEN_AXE ||
+                    weaponItem == Items.DIAMOND_AXE ||
+                    weaponItem == Items.NETHERITE_AXE ||
+                    weaponItem == Items.TRIDENT ||
+                    weaponItem == Items.CROSSBOW
+        }
+
+        /** Check if the given weapon is stronger than the current one */
+        private fun isStrongerThanCurrent(newWeapon: ItemStack): Boolean {
+            val currentWeapon = mob.mainHandStack
+
+            // Always pick up if unarmed
+            if (currentWeapon.isEmpty) {
+                return true
+            }
+
+            val newPower = getWeaponPower(newWeapon)
+            val currentPower = getWeaponPower(currentWeapon)
+
+            return newPower > currentPower
+        }
+
+        /** Calculate weapon power for comparison Higher value = stronger weapon */
+        private fun getWeaponPower(weapon: ItemStack): Double {
+            if (weapon.isEmpty) {
+                return 0.0
+            }
+
+            val item = weapon.item
+            var power = 0.0
+
+            // Get attack damage from item attributes (includes base damage from item)
+            val attributeModifiers =
+                    weapon.getOrDefault(
+                            net.minecraft.component.DataComponentTypes.ATTRIBUTE_MODIFIERS,
+                            AttributeModifiersComponent.DEFAULT
+                    )
+
+            // Find attack damage modifier
+            for (entry in attributeModifiers.modifiers()) {
+                val attribute = entry.attribute()
+                val slot = entry.slot()
+
+                // Debug - convert attribute to string for comparison
+                val attributeStr = attribute.toString()
+                val containsAttackDamage = attributeStr.contains("attack_damage")
+
+                // Only check modifiers that apply to MAINHAND slot
+                // Check if this is attack_damage attribute
+                if (slot == AttributeModifierSlot.MAINHAND && containsAttackDamage) {
+                    val modifier = entry.modifier()
+                    val modifierValue = modifier.value
+                    power += modifierValue
+                }
+            }
+
+            // Special handling for bows and crossbows (they don't have attack damage attribute)
+            // Give them a lower base value since ranged weapons require ammunition
+            if (item == Items.BOW || item == Items.CROSSBOW) {
+                power = 5.0 // Lower than most swords
+            }
+
+            // If no power from attributes, return 0
+            if (power == 0.0 && item != Items.BOW && item != Items.CROSSBOW) {
+                return 0.0
+            }
+
+            // Add enchantment bonus based on actual enchantment levels
+            // Check for damage-enhancing enchantments
+            val enchantments = weapon.enchantments
+            var enchantmentBonus = 0.0
+
+            for (entry in enchantments.enchantmentEntries) {
+                val enchantmentKey = entry.key.value().toString()
+                val level = entry.intValue
+
+                // Sharpness: adds 0.5 * (level + 1) damage per level
+                if (enchantmentKey.contains("sharpness")) {
+                    enchantmentBonus += 0.5 * (level + 1)
+                }
+                // Smite and Bane of Arthropods: similar to sharpness
+                else if (enchantmentKey.contains("smite") ||
+                                enchantmentKey.contains("bane_of_arthropods")
+                ) {
+                    enchantmentBonus += 0.5 * (level + 1)
+                }
+                // Power (for bows): adds 25% * (level + 1) damage
+                else if (enchantmentKey.contains("power")) {
+                    enchantmentBonus += level * 0.5
+                }
+                // Piercing (for crossbows)
+                else if (enchantmentKey.contains("piercing")) {
+                    enchantmentBonus += level * 0.3
+                }
+                // Other enchantments add minor bonus
+                else {
+                    enchantmentBonus += level * 0.2
+                }
+            }
+
+            power += enchantmentBonus
+
+            return power
+        }
+
+        /** Pick up the weapon and drop the current one */
+        private fun pickupWeapon(itemEntity: ItemEntity) {
+            val newWeapon = itemEntity.stack.copy()
+            val oldWeapon = mob.mainHandStack.copy()
+
+            // Equip the new weapon
+            mob.equipStack(EquipmentSlot.MAINHAND, newWeapon)
+
+            // Drop the old weapon if it exists
+            if (!oldWeapon.isEmpty) {
+                mob.dropStack(mob.getEntityWorld() as ServerWorld, oldWeapon)
+            }
+
+            // Remove the item entity from the world
+            itemEntity.discard()
+
+            // Update attack type based on new weapon
+            mob.updateAttackType()
+        }
+    }
     override fun writeCustomData(view: net.minecraft.storage.WriteView) {
         super.writeCustomData(view)
         writeAngerToData(view)
