@@ -1,14 +1,24 @@
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
 # Sharo Utilities
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-green.svg)](https://www.minecraft.net/)
+[![Fabric](https://img.shields.io/badge/Fabric-0.18.4-blue.svg)](https://fabricmc.net/)
 
 ## 概要
 
-Minecraft JE 1.16.4 向けの便利 Mod
+Minecraft Java Edition 1.21.11 向けの便利 Mod
 
 バランス調整のためレシピや機能が変更される可能性あり
 
 [【Minecraft】Sharo Utilities - sharo-jef のブログ](https://sharo-jef.hatenablog.com/entry/2020/12/12/151129)
+
+## 必要環境
+
+- **Minecraft**: 1.21.11
+- **Fabric Loader**: 0.18.4 以上
+- **Fabric API**: 0.140.2+1.21.11
+- **Fabric Language Kotlin**: 1.13.0+kotlin.2.1.0
+- **Java**: 21 以上
 
 ## 設定
 
