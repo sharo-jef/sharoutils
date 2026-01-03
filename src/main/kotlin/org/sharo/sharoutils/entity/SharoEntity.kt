@@ -45,9 +45,20 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
     // Attack goals - stored as fields so we can dynamically switch them
     private val bowAttackGoal =
             object : BowAttackGoal<SharoEntity>(this, 1.0, 20, 15.0f) {
-                override fun canStart(): Boolean = isHoldingRangedWeapon() && super.canStart()
-                override fun shouldContinue(): Boolean =
-                        isHoldingRangedWeapon() && super.shouldContinue()
+                override fun canStart(): Boolean {
+                    val target = this@SharoEntity.target
+                    return isHoldingRangedWeapon() &&
+                            target != null &&
+                            target.isAlive &&
+                            super.canStart()
+                }
+                override fun shouldContinue(): Boolean {
+                    val target = this@SharoEntity.target
+                    return isHoldingRangedWeapon() &&
+                            target != null &&
+                            target.isAlive &&
+                            super.shouldContinue()
+                }
             }
 
     private val crossbowAttackGoal =
@@ -265,6 +276,15 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
         )
         targetSelector.add(2, ActiveTargetGoal(this, WitchEntity::class.java, true))
         targetSelector.add(2, ActiveTargetGoal(this, SlimeEntity::class.java, true))
+        // Target Ender Dragon
+        targetSelector.add(
+                2,
+                ActiveTargetGoal(
+                        this,
+                        net.minecraft.entity.boss.dragon.EnderDragonEntity::class.java,
+                        true
+                )
+        )
         // Use a filter to exclude Creepers and Enderman from general hostile targeting
         targetSelector.add(
                 3,
@@ -326,6 +346,12 @@ class SharoEntity(type: EntityType<out HostileEntity>, world: World) :
             return
         }
         super.setTarget(target)
+    }
+
+    override fun dropEquipment(world: ServerWorld, source: DamageSource, causedByPlayer: Boolean) {
+        // Override to ensure weapons are always dropped regardless of who killed the entity
+        // This is important for picked-up weapons
+        super.dropEquipment(world, source, true) // Always pass true to force drops
     }
 
     override fun shootAt(target: LivingEntity, pullProgress: Float) {
